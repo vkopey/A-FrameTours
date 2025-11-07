@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html><head>
+    <meta charset="utf-8">
+    <title>Hello, World! • A-Frame</title>
+    <meta name="description" content="Hello, World! • A-Frame">
+    <script src="../../../dist/aframe-master.min.js"></script>
+  </head>
+
+  <body>
+  
+  
+    <a-scene inspector="url: https://cdn.jsdelivr.net/gh/aframevr/aframe-inspector@master/dist/aframe-inspector.min.js">
+
+      <a-sky id="sky" src="museum147.jpg" rotation="0 90 0">
+	  </a-sky>
+	 
+      <a-camera>
+       <a-cursor></a-cursor>
+      </a-camera>
+
+    </a-scene>
+
+<script>
+
+const db={
+'museum147.jpg':
+{
+ 1: {src:'museum148.jpg', type:'sky', pos:'-4 -2 -7', rot:'-90 0 0'},
+ 2: {src:'museum147.jpg', type:'sky',  pos:'0 -2 -7', rot:'-90 0 0'},
+ 3: {src:'museum149.jpg', type:'sky',  pos:'4 -2 -7', rot:'-90 0 0'},
+ 4: {src:'audio.mp3', type:'sound',  pos:'5 -2 -5', rot:'-90 0 0'}
+},
+'museum148.jpg':
+{
+ 1: {src:'tree1.glb', type:'gltf',  pos:'-4 -2 -2', rot:'-90 0 0'},
+ 2: {src:'museum148.jpg', type:'sky',  pos:'2.8 -2 -7.2', rot:'-90 0 0'},
+ 3: {src:'museum147.jpg', type:'sky',  pos:'0.9 -2 3.5', rot:'-90 0 0'},
+ 4: {src:'29.jpg', type:'image',  pos:'-3 0 -7', rot:'0 27 0'}
+},
+'museum149.jpg':
+{
+ 1: {src:'museum147.jpg', type:'sky',  pos:'-4 -2 -7', rot:'-90 0 0'},
+ 2: {src:'museum148.jpg', type:'sky',  pos:'0 -2 -7', rot:'-90 0 0'},
+ 3: {src:'museum149.jpg', type:'sky',  pos:'4 -2 -7', rot:'-90 0 0'}
+}
+
+};
+		 
+//-------------------------------------
+function createImage(src,position,rotation)
+{
+const el = document.createElement('a-image');
+el.setAttribute('src', src);
+el.setAttribute('position', position);
+el.setAttribute('rotation', rotation);
+el.setAttribute('width', '50');
+el.setAttribute('height', '50');
+scene.appendChild(el);
+el.addEventListener('mouseleave', event => {
+	el.remove();
+	createCircles(current);
+	});
+el.addEventListener('click', event => {
+	//console.log(event.detail.mouseEvent);
+	//console.log(event.detail.intersection.point);
+	const x=event.detail.mouseEvent.clientX;
+	const y=event.detail.mouseEvent.clientY;
+	el.object3D.position.x-= (x-document.body.clientWidth/2)*0.01;
+	el.object3D.position.y+= (y-document.body.clientHeight/2)*0.01;
+	});
+return el;
+}
+
+//-------------------------------------
+function onClick(event)
+{
+    const id=event.target.id;
+	//console.log('Натиснуто:', id);
+	const c=db[current][id];
+	if (c.type!='sound') hasSoundPlayed = false; 
+	
+	if (c.type=='sky')
+    {
+	current=c.src;
+    document.getElementById('sky').setAttribute('src', current);
+    removeCircles();
+	createCircles(current);
+	return;
+	}
+    
+	if (c.type=='image')
+    {
+	createImage(c.src, c.pos, c.rot);
+	removeCircles();
+	//var cameraEl = document.querySelector('a-camera');
+    //cameraEl.setAttribute('wasd-controls');
+	return;
+	}
+	
+	if (c.type=='sound')
+	{
+	createSound(c.src);
+	return;
+	}
+	
+	if (c.type=='gltf')
+	{createGltf(c.src, c.pos);}
+  }
+
+//-------------------------------------
+function createGltf(src, position)
+{
+const el = document.createElement('a-gltf-model');
+el.setAttribute('src', src);
+el.setAttribute('position', position);
+el.setAttribute('animation',"property: rotation; to: 0 360 0; loop: true; dur: 10000");
+scene.appendChild(el);
+return el;
+}
+
+//-------------------------------------
+function createSound(src)
+{
+//const el = document.createElement('a-sound');
+//el.setAttribute('src', src);
+//el.setAttribute('autoplay', "true");
+//scene.appendChild(el);
+//return el;
+if (!hasSoundPlayed) {
+const sound = new Audio(src);
+sound.play();
+hasSoundPlayed = true; 
+}
+}
+  
+//-------------------------------------
+function createCircle(id,position,rotation,text)
+{
+const el = document.createElement('a-circle');
+el.setAttribute('id', id);
+el.setAttribute('position', position);
+el.setAttribute('rotation', rotation);
+el.setAttribute('color', "#FFFF00");
+
+const tx = document.createElement('a-text');
+tx.setAttribute('value', text);
+tx.setAttribute('align', "center");
+tx.setAttribute('width', "30");
+tx.setAttribute('color', "#000000");
+tx.setAttribute('position', "0 0 0.01");
+
+el.appendChild(tx);
+scene.appendChild(el);
+
+el.addEventListener('mouseenter', event => {el.setAttribute('color', '#FF0000');});
+el.addEventListener('mouseleave', event => {el.setAttribute('color', '#FFFF00');});
+el.addEventListener('click', onClick);
+return el;
+}
+
+//--------------------------------
+function removeCircles()
+{
+const circles = document.querySelectorAll('a-circle');
+for (const circle of circles) {
+circle.remove();
+}
+const elements = document.querySelectorAll('a-gltf-model');
+for (const element of elements) {
+element.remove();
+}
+}
+
+//--------------------------------
+function createCircles(current)
+{
+const circles=db[current];
+for (const circle in circles) {
+ const c=db[current][circle]
+ //onsole.log(db[current][circle]);
+ createCircle(circle,c.pos,c.rot,circle);
+ }
+}
+
+//----------------------------
+const scene = document.querySelector('a-scene');
+var current='museum147.jpg';
+createCircles(current);
+var hasSoundPlayed = false; 
+//removeCircles();
+
+
+    </script>
+</body></html>
