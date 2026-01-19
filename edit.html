@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <title>Editor</title>
+  <script src="../../../dist/aframe-master.min.js"></script>
+
+  <style>
+    body { margin: 0; }
+    #ui {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      width: 260px;
+      background: rgba(255,255,255,0.95);
+      padding: 10px;
+      font-family: sans-serif;
+      border-radius: 6px;
+      z-index: 10;
+    }
+    #ui input, #ui button, #ui textarea {
+      width: 100%;
+      margin-bottom: 6px;
+    }
+    #ui label {
+      font-weight: bold;
+      font-size: 13px;
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- ================= UI PANEL ================= -->
+<div id="ui">
+  <label>Text</label>
+  <input id="ui-text" readonly>
+
+  <label>Type</label>
+  <input list="types" id="ui-type">
+
+<datalist id="types">
+  <option value="sky">
+  <option value="image">
+  <option value="vsky">
+  <option value="sound">
+  <option value="gltf">
+</datalist>
+
+  <label>Position</label>
+  <input id="ui-px" placeholder="X">
+  <input id="ui-py" placeholder="Y">
+  <input id="ui-pz" placeholder="Z">
+
+  <label>Rotation</label>
+  <input id="ui-rx" placeholder="RX">
+  <input id="ui-ry" placeholder="RY">
+  <input id="ui-rz" placeholder="RZ">
+  <label>Src</label>
+  <input id="ui-src" placeholder="src">
+  
+  <button id="btn-create">Create</button>
+  <button id="btn-next">Next</button>
+
+  <button id="btn-save">JSON->clipboard</button>
+
+  <textarea id="ui-json" rows="6" placeholder="JSON output" readonly></textarea>
+</div>
+
+<!-- ================= SCENE ================= -->
+<a-scene>
+  <a-sky id="sky" src="museum147.jpg" rotation="0 90 0" visible="true"></a-sky>
+  <a-entity camera look-controls></a-entity>
+</a-scene>
+
+<script>
+/* ================= STATE ================= */
+const scene = document.querySelector("a-scene");
+let circles = [];
+let active = null;
+
+function inCircles(text){
+   const t=circles.map(c => c.querySelector("a-text").getAttribute("value"))
+   return t.includes(text) //чи є елемент з таким текстом?
+}
+
+/* ================= CREATE CIRCLE ================= */
+function createCircle(data = {}) {
+	const el = document.createElement('a-circle');
+	el.setAttribute('_type', '');
+    el.setAttribute('_src', '.jpg');
+	el.setAttribute('position', '0.4 -2 -9');
+	el.setAttribute('rotation', '-90 0 0');
+	//el.setAttribute("rotation", data.rotation || {x:-90, y:0, z:0});
+	el.setAttribute('color', "#FFFF00");
+
+	const tx = document.createElement('a-text');
+	tx.setAttribute('value', data.text);
+	tx.setAttribute('align', "center");
+	tx.setAttribute('width', "30");
+	tx.setAttribute('color', "#000000");
+	tx.setAttribute('position', "0 0 0.01");
+
+	el.appendChild(tx);
+	scene.appendChild(el);
+	circles.push(el);
+	//el.addEventListener("click", () => setActive(el));
+
+    el.addEventListener("loaded", () => {
+    	//console.log(el.getAttribute("position")); // без loaded будуть нулі
+        setActive(el);
+  });
+
+}
+
+/* ================= ACTIVE ================= */
+function setActive(el) {
+  circles.forEach(c => c.setAttribute("material", "color", "yellow"));
+  active = el;
+  el.setAttribute("material", "color", "#FFD700");
+  updateUI();
+}
+
+/* ================= UI <-> SCENE ================= */
+function updateUI() {
+  if (!active) return;
+
+  const p = active.getAttribute("position");
+  const r = active.getAttribute("rotation");
+  const t = active.querySelector("a-text").getAttribute("value");
+  const s = active.getAttribute("_src");
+  const tp = active.getAttribute("_type");
+
+  uiText.value = t;
+  uiType.value = tp;
+  uiPx.value = p.x.toFixed(1);
+  uiPy.value = p.y.toFixed(1);
+  uiPz.value = p.z.toFixed(1);
+  uiRx.value = r.x.toFixed(0);
+  uiRy.value = r.y.toFixed(0);
+  uiRz.value = r.z.toFixed(0);
+  uiSrc.value = s;
+}
+
+function applyUI() {
+  if (!active) return;
+
+  active.setAttribute("position", {
+    x: parseFloat(uiPx.value),
+    y: parseFloat(uiPy.value),
+    z: parseFloat(uiPz.value)
+  });
+
+  active.setAttribute("rotation", {
+    x: parseFloat(uiRx.value),
+    y: parseFloat(uiRy.value),
+    z: parseFloat(uiRz.value)
+  });
+  
+  active.setAttribute("_src", uiSrc.value);
+  active.setAttribute("_type", uiType.value);
+
+  //if (!inCircles(uiText.value))
+  active.querySelector("a-text").setAttribute("value", uiText.value);
+  //else alert("Name exists!") //текст повинен бути унікальним
+
+}
+
+/* ================= KEYBOARD ================= */
+document.addEventListener("keydown", e => {
+  if (!active) return;
+  
+  const step = 0.1;
+  const rot = 5;
+
+  let p = active.getAttribute("position");
+  let r = active.getAttribute("rotation");
+
+  switch (e.key) {
+    case "ArrowLeft":  p.x -= step; break;
+    case "ArrowRight": p.x += step; break;
+    case "ArrowUp":    p.z -= step; break;
+    case "ArrowDown":  p.z += step; break;
+    case "PageUp":     p.y += step; break;
+    case "PageDown":   p.y -= step; break;
+
+    case "w": case "W": r.x -= rot; break;
+    case "s": case "S": r.x += rot; break;
+    case "a": case "A": r.y -= rot; break;
+    case "d": case "D": r.y += rot; break;
+    case "q": case "Q": r.z -= rot; break;
+    case "e": case "E": r.z += rot; break;
+    default: return;
+  }
+
+  active.setAttribute("position", p);
+  active.setAttribute("rotation", r);
+  updateUI();
+});
+
+/* ================= JSON ================= */
+function saveJSON() {
+  let data={}
+  circles.forEach(c => {
+  let pos=c.getAttribute("position")
+  let rot=c.getAttribute("rotation")
+  data[c.querySelector("a-text").getAttribute("value")]={
+    src: c.getAttribute("_src"),
+	type: c.getAttribute("_type"),
+    pos: pos.x.toFixed(1)+' '+pos.y.toFixed(1)+' '+pos.z.toFixed(1),
+    rot: rot.x.toFixed(0)+' '+rot.y.toFixed(0)+' '+rot.z.toFixed(0)
+}
+}); 
+
+  uiJson.value = JSON.stringify(data, null, 2);
+  navigator.clipboard.writeText(uiJson.value);
+}
+
+function selectNext(active) {
+  if (circles.length === 0) return;
+
+  // якщо нічого не вибрано — беремо перший
+  if (!active) {
+    setActive(circles[0]);
+    return;
+  }
+
+  const index = circles.indexOf(active);
+
+  // якщо активний з якихось причин не знайдений
+  if (index === -1) {
+    setActive(circles[0]);
+    return;
+  }
+
+  const nextIndex = (index + 1) % circles.length;
+  setActive(circles[nextIndex]);
+}
+
+
+/* ================= UI EVENTS ================= */
+const uiText = document.getElementById("ui-text");
+const uiType = document.getElementById("ui-type");
+const uiPx   = document.getElementById("ui-px");
+const uiPy   = document.getElementById("ui-py");
+const uiPz   = document.getElementById("ui-pz");
+const uiRx   = document.getElementById("ui-rx");
+const uiRy   = document.getElementById("ui-ry");
+const uiRz   = document.getElementById("ui-rz");
+const uiSrc = document.getElementById("ui-src");
+const uiJson = document.getElementById("ui-json");
+
+["ui-type","ui-px","ui-py","ui-pz","ui-rx","ui-ry","ui-rz","ui-src"]
+  .forEach(id => document.getElementById(id).addEventListener("input", applyUI));
+
+
+
+document.getElementById("btn-create").onclick = () =>
+  createCircle({ text: ""+(circles.length+1) });
+
+document.getElementById("btn-next").onclick = () =>
+  selectNext(active);
+
+document.getElementById("btn-save").onclick = saveJSON;
+
+/* ================= INIT ================= */
+createCircle({ text: "1" });
+</script>
+
+</body>
+</html>

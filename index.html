@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html><head>
     <meta charset="utf-8">
-    <title>Hello, World! • A-Frame</title>
-    <meta name="description" content="Hello, World! • A-Frame">
-    <script src="https://aframe.io/releases/1.7.1/aframe.min.js"></script>
+    <title>The geological museum of IFNTUOG</title>
+    <meta name="description" content="VT A-Frame">
+    <script src="../../../dist/aframe-master.min.js"></script>
   </head>
 
   <body>
@@ -11,9 +11,13 @@
   
     <a-scene inspector="url: https://cdn.jsdelivr.net/gh/aframevr/aframe-inspector@master/dist/aframe-inspector.min.js">
 
-      <a-sky id="sky" src="museum147.jpg" rotation="0 90 0">
+      <a-sky id="sky" src="museum147.jpg" rotation="0 90 0" visible="true">
 	  </a-sky>
-	 
+
+      <a-assets>
+        <video id="my-video" src="" autoplay="true"></video>
+      </a-assets>
+
       <a-camera>
        <a-cursor></a-cursor>
       </a-camera>
@@ -22,30 +26,55 @@
 
 <script>
 
-const db={
+const db_={
 'museum147.jpg':
 {
- 1: {src:'museum148.jpg', type:'sky', pos:'-4 -2 -7', rot:'-90 0 0'},
- 2: {src:'museum147.jpg', type:'sky',  pos:'0 -2 -7', rot:'-90 0 0'},
- 3: {src:'museum149.jpg', type:'sky',  pos:'4 -2 -7', rot:'-90 0 0'},
- 4: {src:'audio.mp3', type:'sound',  pos:'5 -2 -5', rot:'-90 0 0'}
+ 1: {src:'museum148.jpg', type:'sky', pos:'-4.7 -2 -7', rot:'-90 0 0'},
+ 2: {src:'museum150.jpg', type:'sky',  pos:'0.4 -2 -9', rot:'-90 0 0'},
+ 3: {src:'museum149.jpg', type:'sky',  pos:'5.6 -2 -7', rot:'-90 0 0'},
+ 'A': {src:'audio.mp3', type:'sound',  pos:'0.3 -2 -5', rot:'-90 0 0'},
+ 'V': {src:'progressive2.mkv', type:'vsky',  pos:'-2 -2 -5', rot:'-90 0 0'}
 },
 'museum148.jpg':
 {
- 1: {src:'tree1.glb', type:'gltf',  pos:'-4 -2 -2', rot:'-90 0 0'},
- 2: {src:'museum148.jpg', type:'sky',  pos:'2.8 -2 -7.2', rot:'-90 0 0'},
- 3: {src:'museum147.jpg', type:'sky',  pos:'0.9 -2 3.5', rot:'-90 0 0'},
- 4: {src:'29.jpg', type:'image',  pos:'-3 0 -7', rot:'0 27 0'}
+ 'M': {src:'1.glb', type:'gltf',  pos:'-4 -2 -2', rot:'-90 0 0'},
+ 'V': {src:'progressive.mp4', type:'vsky',  pos:'2.8 -2 -7.2', rot:'-90 0 0'},
+ 3: {src:'museum147.jpg', type:'sky',  pos:'0.9 -2 7.8', rot:'-90 0 0'},
+ 'I': {src:'29.jpg', type:'image',  pos:'-3 0 -7', rot:'0 27 0'}
 },
 'museum149.jpg':
 {
- 1: {src:'museum147.jpg', type:'sky',  pos:'-4 -2 -7', rot:'-90 0 0'},
- 2: {src:'museum148.jpg', type:'sky',  pos:'0 -2 -7', rot:'-90 0 0'},
- 3: {src:'museum149.jpg', type:'sky',  pos:'4 -2 -7', rot:'-90 0 0'}
+ 1: {src:'museum147.jpg', type:'sky',  pos:'-2 -2 3.5', rot:'-90 0 0'}
+},
+'museum150.jpg':
+{
+ 1: {src:'museum153.jpg', type:'sky',  pos:'-2.5 -2 -7', rot:'-90 0 0'},
+ 2: {src:'museum147.jpg', type:'sky',  pos:'2.6 -2 7', rot:'-90 0 0'}
+},
+'museum153.jpg':
+{
+ 1: {src:'museum156.jpg', type:'sky',  pos:'-2.5 -2 -7', rot:'-90 0 0'},
+ 2: {src:'museum150.jpg', type:'sky',  pos:'2.6 -2 7', rot:'-90 0 0'}
+},
+'museum156.jpg':
+{
+ 1: {src:'museum156.jpg', type:'sky',  pos:'-2.5 -2 -7', rot:'-90 0 0'},
+ 2: {src:'museum153.jpg', type:'sky',  pos:'2.6 -2 7', rot:'-90 0 0'}
 }
-
 };
-		 
+
+
+let db;
+// ЗАСТАРІЛО!
+const xhr = new XMLHttpRequest();
+xhr.open('GET', 'data.json', false); // false = синхронно
+xhr.send();
+if (xhr.status === 200) {
+  db = JSON.parse(xhr.responseText);
+}
+//console.log(db);
+//console.log(db["museum147.jpg"]["A"].src); 
+
 //-------------------------------------
 function createImage(src,position,rotation)
 {
@@ -55,57 +84,67 @@ el.setAttribute('position', position);
 el.setAttribute('rotation', rotation);
 el.setAttribute('width', '50');
 el.setAttribute('height', '50');
+
+let [x,y,z] = position.split(" ").map(parseFloat);
+let [a,b,c] = rotation.split(" ").map(parseFloat);
+//el.setAttribute('animation',"property: object3D.position.y; to: 5; loop: true; dur: 10000");
+
 scene.appendChild(el);
 el.addEventListener('mouseleave', event => {
 	el.remove();
 	createCircles(current);
 	});
+	
+
 el.addEventListener('click', event => {
 	//console.log(event.detail.mouseEvent);
-	//console.log(event.detail.intersection.point);
-	const x=event.detail.mouseEvent.clientX;
-	const y=event.detail.mouseEvent.clientY;
-	el.object3D.position.x-= (x-document.body.clientWidth/2)*0.01;
-	el.object3D.position.y+= (y-document.body.clientHeight/2)*0.01;
+	const p=event.detail.intersection.point;
+	el.object3D.position.x-= Math.sin(b*Math.PI/180)*Math.abs(p.x-x)/(p.x-x);
+	el.object3D.position.y-= Math.abs(p.y)/p.y;
+	el.object3D.position.z-= Math.cos(b*Math.PI/180)*Math.abs(p.z-z)/(p.z-z);
 	});
 return el;
 }
 
 //-------------------------------------
-function onClick(event)
+function createCImage(src,position,rotation)
 {
-    const id=event.target.id;
-	//console.log('Натиснуто:', id);
-	const c=db[current][id];
-	if (c.type!='sound') hasSoundPlayed = false; 
-	
-	if (c.type=='sky')
-    {
-	current=c.src;
-    document.getElementById('sky').setAttribute('src', current);
-    removeCircles();
+const el = document.createElement('a-curvedimage');
+el.setAttribute('src', src);
+el.setAttribute('position', '0 0 0');
+el.setAttribute('rotation', '0 0 0');
+el.setAttribute('radius', '5');
+el.setAttribute('theta-length', '72');
+el.setAttribute('height', '20');
+
+
+//el.setAttribute('animation',"property: object3D.position.y; to: 5; loop: true; dur: 10000");
+
+scene.appendChild(el);
+el.addEventListener('mouseleave', event => {
+	el.remove();
 	createCircles(current);
-	return;
-	}
-    
-	if (c.type=='image')
-    {
-	createImage(c.src, c.pos, c.rot);
-	removeCircles();
-	//var cameraEl = document.querySelector('a-camera');
-    //cameraEl.setAttribute('wasd-controls');
-	return;
-	}
-	
-	if (c.type=='sound')
-	{
-	createSound(c.src);
-	return;
-	}
-	
-	if (c.type=='gltf')
-	{createGltf(c.src, c.pos);}
-  }
+	});
+
+el.addEventListener('click', event => {
+	//console.log(event.detail.mouseEvent);
+	const p=event.detail.intersection.point;
+	el.object3D.position.y-= 2*Math.abs(p.y)/p.y;
+	});
+return el;
+}
+
+//-------------------------------------
+function createVideoSphere(src)
+{
+removeCircles();
+video.setAttribute('src', src);
+const el = document.createElement('a-videosphere');
+el.setAttribute('src', '#my-video');
+scene.appendChild(el);
+sky.setAttribute('visible', 'false');
+el2=createCircle('vSphereRemove', '0 -2 -9', '0 0 0', 'X');
+}
 
 //-------------------------------------
 function createGltf(src, position)
@@ -177,18 +216,73 @@ function createCircles(current)
 const circles=db[current];
 for (const circle in circles) {
  const c=db[current][circle]
- //onsole.log(db[current][circle]);
+ //console.log(db[current][circle]);
  createCircle(circle,c.pos,c.rot,circle);
  }
 }
 
+//-------------------------------------
+function onClick(event)
+{
+    const id=event.target.id;
+	//console.log('Натиснуто:', id);
+    
+	if (id=='vSphereRemove')
+    {
+	video.pause();
+	video.setAttribute('src', '');
+	document.querySelector('a-videosphere').remove();
+	removeCircles();
+	sky.setAttribute('visible', 'true');
+	createCircles(current);
+	return;
+	}
+
+	const c=db[current][id];
+	if (c.type!='sound') hasSoundPlayed = false; 
+	
+	if (c.type=='sky')
+    {
+	current=c.src;
+    sky.setAttribute('src', current);
+    removeCircles();
+	createCircles(current);
+	return;
+	}
+	
+	if (c.type=='vsky')
+    {
+	createVideoSphere(c.src);
+	return;
+	}
+    
+	if (c.type=='image')
+    {
+	createImage(c.src, c.pos, c.rot);
+	removeCircles();
+	//var cameraEl = document.querySelector('a-camera');
+    //cameraEl.setAttribute('wasd-controls');
+	return;
+	}
+	
+	if (c.type=='sound')
+	{
+	createSound(c.src);
+	return;
+	}
+	
+	if (c.type=='gltf')
+	{createGltf(c.src, c.pos);}
+  }
+  
 //----------------------------
 const scene = document.querySelector('a-scene');
+const sky =document.getElementById('sky');
 var current='museum147.jpg';
 createCircles(current);
 var hasSoundPlayed = false; 
+const video =document.getElementById('my-video');
 //removeCircles();
-
 
     </script>
 </body></html>
