@@ -75,6 +75,7 @@
 
 <script>
 /* ================= STATE ================= */
+const data={};
 const scene = document.querySelector("a-scene");
 let circles = [];
 let active = null;
@@ -87,10 +88,10 @@ function inCircles(text){
 /* ================= CREATE CIRCLE ================= */
 function createCircle(data = {}) {
 	const el = document.createElement('a-circle');
-	el.setAttribute('_type', '');
-    el.setAttribute('_src', '.jpg');
-	el.setAttribute('position', '0.4 -2 -9');
-	el.setAttribute('rotation', '-90 0 0');
+	el.setAttribute('_type', data._type || '');
+    el.setAttribute('_src', data._src || '.jpg');
+	el.setAttribute('position', data.position || '0.4 -2 -9');
+	el.setAttribute('rotation', data.rotation || '-90 0 0');
 	//el.setAttribute("rotation", data.rotation || {x:-90, y:0, z:0});
 	el.setAttribute('color', "#FFFF00");
 
@@ -214,6 +215,21 @@ function saveJSON() {
 
   uiJson.value = JSON.stringify(data, null, 2);
   navigator.clipboard.writeText(uiJson.value);
+  
+        fetch("http://localhost:8000", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: uiJson.value
+      })
+      .then(response => response.text())
+      .then(result => {
+        console.log("Відповідь сервера:", result);
+      })
+      .catch(error => {
+        console.error("Помилка:", error);
+      });
 }
 
 function selectNext(active) {
@@ -264,7 +280,17 @@ document.getElementById("btn-next").onclick = () =>
 document.getElementById("btn-save").onclick = saveJSON;
 
 /* ================= INIT ================= */
-createCircle({ text: "1" });
+function createCircles()
+{
+for (const c in data) {
+ const d=data[c];
+ //console.log(d);
+ createCircle({text:c, _src:d['src'], _type:d['type'], position:d['pos'], rotation:d['rot']});
+ }
+}
+
+//createCircle({ text: "1" });
+createCircles();
 </script>
 
 </body>
