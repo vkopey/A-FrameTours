@@ -1,0 +1,1 @@
+"d:\Portable Python-3.10.5 x64\App\Python\python.exe" geditor_aframe.py
