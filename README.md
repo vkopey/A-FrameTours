@@ -23,3 +23,5 @@ https://en.wikipedia.org/wiki/Virtual_tour
 Відео українською: https://youtu.be/Nw4M382wbKs
 
 Відео роботи з редактором сцен (edit.html): https://youtu.be/gLqk75ysRwI
+
+Відео роботи з редактором графів (geditor_aframe.py): https://youtu.be/APRVzDU7ls4
