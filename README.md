@@ -13,7 +13,7 @@ https://sourceforge.net/projects/portable-python/files/Portable%20Python%203.10/
 5. Edit path to python.exe in geditor.bat and run.bat
 6. Run geditor.bat for edit
 7. Run run.bat for local serve
-8. In browser goto http://localhost:8000/examples/museum for view or to http://localhost:8000/examples/museum/edit.html for edit without geditor.py
+8. After run.bat in browser goto http://localhost:8000/examples/museum for view or to http://localhost:8000/examples/museum/edit.html for edit without geditor.py
 
 ## Other
 https://aframe.io/
