@@ -83,8 +83,8 @@ const el = document.createElement('a-image');
 el.setAttribute('src', src);
 el.setAttribute('position', position);
 el.setAttribute('rotation', rotation);
-el.setAttribute('width', '50');
-el.setAttribute('height', '50');
+el.setAttribute('width', '30');
+el.setAttribute('height', '30');
 
 let [x,y,z] = position.split(" ").map(parseFloat);
 let [a,b,c] = rotation.split(" ").map(parseFloat);
@@ -100,9 +100,9 @@ el.addEventListener('mouseleave', event => {
 el.addEventListener('click', event => {
 	//console.log(event.detail.mouseEvent);
 	const p=event.detail.intersection.point;
-	el.object3D.position.x-= Math.sin(b*Math.PI/180)*Math.abs(p.x-x)/(p.x-x);
+	//el.object3D.position.x-= Math.sin(b*Math.PI/180)*Math.abs(p.x-x)/(p.x-x);
 	el.object3D.position.y-= Math.abs(p.y)/p.y;
-	el.object3D.position.z-= Math.cos(b*Math.PI/180)*Math.abs(p.z-z)/(p.z-z);
+	//el.object3D.position.z-= Math.cos(b*Math.PI/180)*Math.abs(p.z-z)/(p.z-z);
 	});
 return el;
 }
