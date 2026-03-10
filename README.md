@@ -1,6 +1,8 @@
 # A-FrameTours
 Simple framework for creating virtual tours based on A-Frame
 
+The programs are designed to create, edit and play virtual tours based on spherical photos and videos, 3D models and other resources. Using A-Frame allows you to view tours from the browser of any computer or smartphone, including using virtual reality helmets. The virtual tour editor represents tours as directed graphs, which makes it easy to create complex tours with many scenes.
+
 ## Example
 https://vkopey.github.io/A-FrameTours/
 
