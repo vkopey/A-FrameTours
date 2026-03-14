@@ -68,7 +68,7 @@ Nodes are created using Create node. Double-clicking on a node opens a window fo
 
 Here "label" is the name of the resource file, "type" is the type of resource, "description" is the description of the labels on the scene (nodes that the arrows point to). Delete button is used to delete a node, FromGraph – get the approximate value of the "pos" attribute all labels from the graph, Save – save attributes in RAM, OpenHTML – open this scene in the browser using edit.html. It is recommended to first click FromGraph, then open the scene OpenHTML to more accurately set the values of coordinates and rotation angles in edit.html, pass the data to the "description" field (JSON->clipboard), and then click Save. Do not click again after that FromGraph+Save . After you finish editing all scenes, click Export JSON to save the graph file, for example museum.json. The program will automatically create a ready-made data.json file.
 
-## Other
+## See also
 https://aframe.io/
 
 https://en.wikipedia.org/wiki/Virtual_tour
